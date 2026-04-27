@@ -1,97 +1,75 @@
-/* RESET e configuração base */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    user-select: none;
 }
 
 body {
-    width: 100vw;
     height: 100vh;
-    overflow: hidden;
     background-color: black;
-    font-family: 'Segoe UI', 'Helvetica Neue', 'Roboto', monospace;
+    overflow: hidden;
+    font-family: 'Arial', sans-serif;
 }
 
-/* Container principal que ocupa toda a tela */
-.canvas-container {
+.container {
     position: relative;
     width: 100%;
     height: 100%;
-    background-color: #000000;
-}
-
-/* Camada de texto e linhas (fixas, acima do canvas animado) */
-.text-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    pointer-events: none;
-    z-index: 20;
 }
 
-/* linha superior */
-.line-top {
-    width: auto;
-    height: 2px;
-    background-color: white;
-    margin-bottom: 20px;
-    transition: width 0.1s ease;
-    box-shadow: 0 0 2px rgba(255,255,255,0.3);
+.content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    background: transparent;
 }
 
-/* container do texto principal */
-.title-wrapper {
-    display: flex;
-    justify-content: center;
-}
-
-.main-title {
+.title {
     color: white;
-    font-size: clamp(1.8rem, 8vw, 4rem);
-    font-weight: 600;
+    font-size: 3rem;
     letter-spacing: 4px;
-    font-family: 'Segoe UI', 'Helvetica Neue', 'Roboto', sans-serif;
-    text-transform: uppercase;
+    margin: 20px 0;
+    font-weight: 500;
     white-space: nowrap;
-    background-color: transparent;
-    padding: 0 5px;
-    text-shadow: 0 0 2px rgba(255,255,255,0.5);
 }
 
-/* linha inferior */
-.line-bottom {
-    width: auto;
+.line {
     height: 2px;
     background-color: white;
-    margin-top: 20px;
-    transition: width 0.1s ease;
-    box-shadow: 0 0 2px rgba(255,255,255,0.3);
+    width: 100%;
+    margin: 0 auto;
 }
 
-/* Canvas onde os quadrados vão ser desenhados (fundo animado) */
-#particle-canvas {
+.line-top {
+    margin-bottom: 20px;
+}
+
+.line-bottom {
+    margin-top: 20px;
+}
+
+#particleCanvas {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    display: block;
-    background-color: #000000;
-    z-index: 1;
+    pointer-events: none;
+    z-index: 5;
 }
 
-/* responsividade adicional */
-@media (max-width: 600px) {
-    .main-title {
-        font-size: 1.6rem;
-        letter-spacing: 2px;
+/* Responsividade */
+@media (max-width: 768px) {
+    .title {
+        font-size: 1.8rem;
+        white-space: normal;
+        padding: 0 20px;
+    }
+    
+    .line {
+        width: 90%;
     }
 }
