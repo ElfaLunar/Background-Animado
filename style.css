@@ -61,7 +61,6 @@ body {
     z-index: 5;
 }
 
-/* Responsividade */
 @media (max-width: 768px) {
     .title {
         font-size: 1.8rem;
