@@ -1,23 +1,23 @@
 (function() {
     // ---------- CONFIGURAÇÃO DOS QUADRADOS ----------
-    // Tamanhos dos quadrados (maiores)
-    const SQUARE_SIZE_MIN = 18;
-    const SQUARE_SIZE_MAX = 42;
+    // TAMANHOS AUMENTADOS (bem maiores)
+    const SQUARE_SIZE_MIN = 35;     // aumentado de 18 para 35
+    const SQUARE_SIZE_MAX = 70;     // aumentado de 42 para 70
     
-    // Velocidades mais lentas
-    const SQUARE_SPEED_MIN = 0.4;
-    const SQUARE_SPEED_MAX = 1.5;
+    // Velocidades mais lentas (quadrados grandes se movem mais devagar)
+    const SQUARE_SPEED_MIN = 0.25;
+    const SQUARE_SPEED_MAX = 0.9;
     
-    // QUANTIDADES REDUZIDAS
-    const SPAWN_RATE = 5;           // MUITO MENOS quadrados por segundo
-    const MAX_SQUARES = 28;         // LIMITE MÁXIMO reduzido para 28
+    // Quantidade reduzida para não poluir (quadrados grandes precisam de menos quantidade)
+    const SPAWN_RATE = 3.5;         // spawn mais lento
+    const MAX_SQUARES = 18;         // máximo de 18 quadrados grandes
     
-    // Opacidade mais sutil
-    const BASE_OPACITY = 0.5;
+    // Opacidade mais suave para quadrados grandes
+    const BASE_OPACITY = 0.45;
     
-    // Configuração da rotação
-    const ROTATION_SPEED_MIN = 0.2;
-    const ROTATION_SPEED_MAX = 1.2;
+    // Configuração da rotação (mais lenta para quadrados grandes)
+    const ROTATION_SPEED_MIN = 0.1;
+    const ROTATION_SPEED_MAX = 0.7;
 
     // Elementos DOM
     const canvas = document.getElementById('particle-canvas');
@@ -76,7 +76,7 @@
         // Remove quadrados que ficaram fora dos limites
         for (let i = squares.length - 1; i >= 0; i--) {
             const s = squares[i];
-            if (s.y + s.size / 2 < -100 || s.y - s.size / 2 > canvasHeight + 100) {
+            if (s.y + s.size / 2 < -150 || s.y - s.size / 2 > canvasHeight + 150) {
                 squares.splice(i, 1);
             }
         }
@@ -91,28 +91,28 @@
         const minX = size;
         const x = Math.random() * (maxX - minX) + minX;
         
-        // Posição inicial variada para parecer natural
+        // Posição inicial variada
         let startY;
         const spawnVariant = Math.random();
         if (spawnVariant < 0.5) {
-            startY = canvasHeight - size / 2 - (Math.random() * 40);
+            startY = canvasHeight - size / 2 - (Math.random() * 60);
         } else {
             startY = size / 2 + (Math.random() * canvasHeight * 0.6);
         }
         
-        // Velocidade: maioria sobe lentamente
+        // Velocidade: maioria sobe muito lentamente
         let speedY;
         if (Math.random() < 0.8) {
             speedY = -(Math.random() * (SQUARE_SPEED_MAX - SQUARE_SPEED_MIN) + SQUARE_SPEED_MIN);
         } else {
-            speedY = (Math.random() * (SQUARE_SPEED_MAX - SQUARE_SPEED_MIN) + SQUARE_SPEED_MIN) * 0.4;
+            speedY = (Math.random() * (SQUARE_SPEED_MAX - SQUARE_SPEED_MIN) + SQUARE_SPEED_MIN) * 0.3;
         }
         
-        // Opacidade variada
-        let variedOpacity = BASE_OPACITY * (0.7 + Math.random() * 0.6);
-        variedOpacity = Math.min(0.8, Math.max(0.3, variedOpacity));
+        // Opacidade variada e mais sutil para quadrados grandes
+        let variedOpacity = BASE_OPACITY * (0.6 + Math.random() * 0.7);
+        variedOpacity = Math.min(0.7, Math.max(0.25, variedOpacity));
         
-        // Velocidade de rotação
+        // Velocidade de rotação mais lenta
         const rotationSpeed = (Math.random() * (ROTATION_SPEED_MAX - ROTATION_SPEED_MIN) + ROTATION_SPEED_MIN) * (Math.random() > 0.5 ? 1 : -1);
         const rotationOffset = Math.random() * 360;
         
@@ -122,10 +122,9 @@
     
     // ---------- MANUTENÇÃO SUAVE DO NÚMERO DE QUADRADOS ----------
     function maintainSquareCount() {
-        // Mantém quantidade mínima bem menor
-        const desiredMinCount = 15;
+        const desiredMinCount = 10;
         if (squares.length < desiredMinCount) {
-            const toSpawn = Math.min(3, desiredMinCount - squares.length);
+            const toSpawn = Math.min(2, desiredMinCount - squares.length);
             for (let i = 0; i < toSpawn; i++) {
                 spawnSquare();
             }
@@ -144,7 +143,7 @@
             if (sq.rotation < 0) sq.rotation += 360;
             
             // Remove somente se saiu completamente da tela
-            const isOutOfBounds = (sq.y + sq.size / 2 < -80) || (sq.y - sq.size / 2 > canvasHeight + 80);
+            const isOutOfBounds = (sq.y + sq.size / 2 < -120) || (sq.y - sq.size / 2 > canvasHeight + 120);
             if (isOutOfBounds) {
                 squares.splice(i, 1);
                 continue;
@@ -154,10 +153,10 @@
             let fadeFactor = 1.0;
             const centerY = sq.y;
             
-            if (centerY < sq.size / 2 + 30) {
-                fadeFactor = Math.max(0, centerY / (sq.size / 2 + 30));
-            } else if (centerY > canvasHeight - sq.size / 2 - 30) {
-                fadeFactor = Math.max(0, (canvasHeight - centerY) / (sq.size / 2 + 30));
+            if (centerY < sq.size / 2 + 50) {
+                fadeFactor = Math.max(0, centerY / (sq.size / 2 + 50));
+            } else if (centerY > canvasHeight - sq.size / 2 - 50) {
+                fadeFactor = Math.max(0, (canvasHeight - centerY) / (sq.size / 2 + 50));
             }
             
             sq.currentOpacity = sq.opacity * Math.max(0.08, Math.min(1, fadeFactor));
@@ -177,14 +176,21 @@
         ctx.translate(sq.x, sq.y);
         ctx.rotate(sq.rotation * Math.PI / 180);
         
-        ctx.shadowColor = `rgba(255, 255, 255, ${op * 0.2})`;
-        ctx.shadowBlur = 3;
+        // Sombra suave para dar profundidade aos quadrados grandes
+        ctx.shadowColor = `rgba(255, 255, 255, ${op * 0.25})`;
+        ctx.shadowBlur = 6;
         
-        ctx.fillStyle = `rgba(255, 255, 255, ${op})`;
+        // Gradiente sutil para quadrados grandes (efeito mais elegante)
+        const gradient = ctx.createLinearGradient(-sq.size/2, -sq.size/2, sq.size/2, sq.size/2);
+        gradient.addColorStop(0, `rgba(255, 255, 255, ${op})`);
+        gradient.addColorStop(1, `rgba(255, 255, 255, ${op * 0.7})`);
+        ctx.fillStyle = gradient;
+        
         ctx.fillRect(-sq.size / 2, -sq.size / 2, sq.size, sq.size);
         
+        // Borda sutil
         ctx.shadowBlur = 0;
-        ctx.strokeStyle = `rgba(255, 255, 255, ${op * 0.15})`;
+        ctx.strokeStyle = `rgba(255, 255, 255, ${op * 0.2})`;
         ctx.strokeRect(-sq.size / 2, -sq.size / 2, sq.size, sq.size);
         
         ctx.restore();
@@ -214,7 +220,7 @@
             return;
         }
         
-        // Spawn reduzido
+        // Spawn controlado
         if (SPAWN_RATE > 0 && squares.length < MAX_SQUARES) {
             const spawnInterval = 1.0 / SPAWN_RATE;
             spawnAccumulator += delta;
@@ -240,8 +246,8 @@
         requestAnimationFrame(animate);
     }
     
-    // ---------- QUADROS INICIAIS (QUANTIDADE REDUZIDA) ----------
-    function seedInitialSquares(count = 20) {
+    // ---------- QUADROS INICIAIS (POUCOS QUADRADOS GRANDES) ----------
+    function seedInitialSquares(count = 12) {
         for (let i = 0; i < count; i++) {
             const size = Math.floor(Math.random() * (SQUARE_SIZE_MAX - SQUARE_SIZE_MIN + 1) + SQUARE_SIZE_MIN);
             const maxX = canvasWidth - size;
@@ -251,18 +257,18 @@
             // Distribuição por toda a tela
             const y = size / 2 + Math.random() * (canvasHeight - size);
             
-            // Velocidades variadas
+            // Velocidades variadas e lentas
             let speedY;
             const speedType = Math.random();
             if (speedType < 0.7) {
-                speedY = -(Math.random() * (SQUARE_SPEED_MAX - 0.2) + 0.2);
+                speedY = -(Math.random() * (SQUARE_SPEED_MAX - 0.15) + 0.15);
             } else if (speedType < 0.85) {
-                speedY = (Math.random() * (SQUARE_SPEED_MAX - 0.2) + 0.2);
+                speedY = (Math.random() * (SQUARE_SPEED_MAX - 0.15) + 0.15);
             } else {
-                speedY = (Math.random() - 0.5) * 0.3;
+                speedY = (Math.random() - 0.5) * 0.2;
             }
             
-            const opacity = BASE_OPACITY * (0.6 + Math.random() * 0.5);
+            const opacity = BASE_OPACITY * (0.6 + Math.random() * 0.6);
             const rotationSpeed = (Math.random() * (ROTATION_SPEED_MAX - ROTATION_SPEED_MIN) + ROTATION_SPEED_MIN) * (Math.random() > 0.5 ? 1 : -1);
             const rotationOffset = Math.random() * 360;
             
@@ -288,7 +294,7 @@
     // ---------- INICIALIZAÇÃO ----------
     function init() {
         resizeCanvas();
-        seedInitialSquares(20);     // QUANTIDADE INICIAL REDUZIDA para 20
+        seedInitialSquares(12);     // Apenas 12 quadrados grandes
         updateLinesWidth();
         lastFrameTime = 0;
         spawnAccumulator = 0;
