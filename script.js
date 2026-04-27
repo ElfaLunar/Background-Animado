@@ -3,8 +3,7 @@ class ParticleCanvas {
         this.canvas = document.getElementById('particleCanvas');
         this.ctx = this.canvas.getContext('2d');
         this.particles = [];
-        this.particleCount = 12;
-        this.titleElement = document.querySelector('.title');
+        this.particleCount = 8;
         
         this.init();
     }
@@ -22,36 +21,23 @@ class ParticleCanvas {
         this.canvas.height = window.innerHeight;
     }
     
-    getTitlePosition() {
-        if (!this.titleElement) return { x: this.canvas.width / 2, y: this.canvas.height / 2 };
-        
-        const rect = this.titleElement.getBoundingClientRect();
-        return {
-            x: rect.left + rect.width / 2,
-            y: rect.bottom + 50 // Posição abaixo da frase
-        };
-    }
-    
     createParticles() {
-        const startPos = this.getTitlePosition();
-        
         for (let i = 0; i < this.particleCount; i++) {
-            this.particles.push(this.createParticle(startPos));
+            this.particles.push(this.createParticle());
         }
     }
     
-    createParticle(startPos) {
+    createParticle() {
         return {
-            x: startPos.x + (Math.random() - 0.5) * 100,
-            y: startPos.y + Math.random() * 30,
-            size: 25 + Math.random() * 15,
+            x: Math.random() * this.canvas.width,
+            y: this.canvas.height - 50 + Math.random() * 30,
+            size: 30 + Math.random() * 20,
             rotation: Math.random() * Math.PI * 2,
-            rotationSpeed: (Math.random() - 0.5) * 0.02,
-            opacity: 0.3 + Math.random() * 0.4,
-            speedY: -0.5 - Math.random() * 0.8,
-            speedX: (Math.random() - 0.5) * 0.3,
-            life: 1,
-            fadeSpeed: 0.003 + Math.random() * 0.005
+            rotationSpeed: (Math.random() - 0.5) * 0.03,
+            opacity: 0.7 + Math.random() * 0.3,
+            speedY: -1.5 - Math.random() * 1.5,
+            speedX: (Math.random() - 0.5) * 0.5,
+            life: 1
         };
     }
     
@@ -59,8 +45,17 @@ class ParticleCanvas {
         this.ctx.save();
         this.ctx.translate(particle.x, particle.y);
         this.ctx.rotate(particle.rotation);
-        this.ctx.globalAlpha = particle.opacity * particle.life;
-        this.ctx.fillStyle = `rgba(255, 255, 255, ${0.3 * particle.life})`;
+        
+        // Calcular opacidade baseada na posição Y (desaparece no topo)
+        let opacity = particle.opacity;
+        if (particle.y < this.canvas.height * 0.3) {
+            // Começa a desaparecer nos 30% superiores da tela
+            const fadeProgress = 1 - (particle.y / (this.canvas.height * 0.3));
+            opacity = particle.opacity * (1 - fadeProgress);
+        }
+        
+        this.ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
         this.ctx.fillRect(-particle.size / 2, -particle.size / 2, particle.size, particle.size);
         this.ctx.restore();
     }
@@ -69,24 +64,24 @@ class ParticleCanvas {
         particle.x += particle.speedX;
         particle.y += particle.speedY;
         particle.rotation += particle.rotationSpeed;
-        particle.life -= particle.fadeSpeed;
         
-        return particle.life > 0;
+        // Remove o quadrado quando chegar ao topo da tela
+        if (particle.y + particle.size / 2 < 0) {
+            return false;
+        }
+        
+        return true;
     }
     
     updateParticles() {
-        const startPos = this.getTitlePosition();
-        
-        // Atualizar partículas existentes e remover as mortas
         for (let i = this.particles.length - 1; i >= 0; i--) {
             if (!this.updateParticle(this.particles[i])) {
                 this.particles.splice(i, 1);
             }
         }
         
-        // Criar novas partículas para manter o número
         while (this.particles.length < this.particleCount) {
-            this.particles.push(this.createParticle(startPos));
+            this.particles.push(this.createParticle());
         }
     }
     
